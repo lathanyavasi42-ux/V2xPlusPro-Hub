@@ -1,0 +1,357 @@
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/lathanyavasi42-ux/V2xPlusPro-Hub/f37c3f219b27993a27a71fd043e4bffa0ddbe5e2/V1"))()
+
+
+local Window = Library:Window({
+    Title = "PlusPro Hub",
+    Desc = "V.3.6",
+    Icon = 101259299986559,
+    Theme = "Dark",
+    Config = {
+        Keybind = Enum.KeyCode.K,
+        Size = UDim2.new(0, 500, 0, 400)
+    },
+    CloseUIButton = {
+        Enabled = true,
+        Text = "PlusPro Hub"
+    }
+})
+
+
+local SidebarLine = Instance.new("Frame")
+SidebarLine.Size = UDim2.new(0, 1, 1, 0)
+SidebarLine.Position = UDim2.new(0, 140, 0, 0) 
+SidebarLine.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+SidebarLine.BorderSizePixel = 0
+SidebarLine.ZIndex = 5
+SidebarLine.Name = "SidebarLine"
+SidebarLine.Parent = game:GetService("CoreGui") 
+
+
+local Tab = Window:Tab({Title = "Main", Icon = ""}) do
+    
+    Tab:Section({Title = "Player"})
+
+    local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+
+
+local normalSpeed = 16
+local fastSpeed = 1000 -- 
+
+Tab:Toggle({
+    Title = "Enable Speed Boost",
+    Desc = "Toggle to run faster",
+    Value = false,
+    Callback = function(v)
+        if v then
+            humanoid.WalkSpeed = fastSpeed
+            print("Speed Boost: ON")
+        else
+            humanoid.WalkSpeed = normalSpeed
+            print("Speed Boost: OFF")
+        end
+    end
+})
+ local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+
+
+local normalJumpPower = 50  
+local highJumpPower = 200   
+
+Tab:Toggle({
+    Title = "Enable High Jump",
+    Desc = "Toggle to jump higher",
+    Value = false,
+    Callback = function(v)
+        if v then
+            humanoid.JumpPower = highJumpPower
+            print("High Jump: ON")
+        else
+            humanoid.JumpPower = normalJumpPower
+            print("High Jump: OFF")
+        end
+    end
+})
+
+    
+    local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local player = Players.LocalPlayer
+
+local humanoidRootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+
+local targetName = "" 
+
+
+Tab:Textbox({
+    Title = "Teleport to Player",
+    Desc = "Enter player name to teleport",
+    Placeholder = "Player name",
+    Value = "",
+    ClearTextOnFocus = false,
+    Callback = function(text)
+        targetName = text -- เก็บชื่อผู้เล่น แต่ยังไม่วาป
+    end
+})
+
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == Enum.KeyCode.Return then
+        if targetName ~= "" then
+            local targetPlayer = Players:FindFirstChild(targetName)
+            if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                local targetHRP = targetPlayer.Character.HumanoidRootPart
+                if humanoidRootPart then
+                    humanoidRootPart.CFrame = targetHRP.CFrame + Vector3.new(0,3,0)
+                    print("Teleported to:", targetName)
+                else
+                    warn("HumanoidRootPart ")
+                end
+            else
+                warn("Player not found or character not loaded:", targetName)
+            end
+        else
+            warn("No")
+        end
+    end
+end)
+
+
+    
+ local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+Tab:Slider({
+    Title = "Speed",
+    Min = 16,
+    Max = 250,
+    Rounding = 0,
+    Value = 25, 
+    Callback = function(val)
+        if player.Character and player.Character:FindFirstChild("Humanoid") then
+            player.Character.Humanoid.WalkSpeed = val
+        end
+        print("WalkSpeed set to:", val)
+    end
+})
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+Tab:Slider({
+    Title = "Set Jump Power",
+    Min = 50,       
+    Max = 200,      
+    Rounding = 0,
+    Value = 50,     
+    Callback = function(val)
+        if player.Character and player.Character:FindFirstChild("Humanoid") then
+            player.Character.Humanoid.JumpPower = val
+        end
+        print("JumpPower set to:", val)
+    end
+})
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local hitboxesFolder = Instance.new("Folder")
+hitboxesFolder.Name = "Hitboxes"
+hitboxesFolder.Parent = workspace
+
+local function createHitbox(targetPlayer, size)
+    if not targetPlayer.Character or not targetPlayer.Character:FindFirstChild("HumanoidRootPart") then return end
+    local root = targetPlayer.Character.HumanoidRootPart
+
+    local hitbox = hitboxesFolder:FindFirstChild(targetPlayer.Name)
+    if not hitbox then
+        hitbox = Instance.new("Part")
+        hitbox.Name = targetPlayer.Name
+        hitbox.Anchored = true
+        hitbox.CanCollide = false
+        hitbox.Transparency = 0.7
+        hitbox.Color = Color3.new(1, 0, 0)
+        hitbox.Material = Enum.Material.Neon
+        hitbox.Parent = hitboxesFolder
+    end
+
+    hitbox.Size = Vector3.new(size, size, size)
+    hitbox.CFrame = root.CFrame
+end
+
+Tab:Slider({
+    Title = "Set Hitbox Size",
+    Min = 1,
+    Max = 50,
+    Rounding = 0,
+    Value = 0,
+    Callback = function(val)
+        for _, p in pairs(Players:GetPlayers()) do
+            if p ~= player then
+                createHitbox(p, val)
+            end
+        end
+    end
+})
+
+game:GetService("RunService").RenderStepped:Connect(function()
+    for _, p in pairs(Players:GetPlayers()) do
+        if p ~= player then
+            local hitbox = hitboxesFolder:FindFirstChild(p.Name)
+            if hitbox and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                hitbox.CFrame = p.Character.HumanoidRootPart.CFrame
+            end
+        end
+    end
+end)
+
+
+Players.PlayerRemoving:Connect(function(plr)
+    local hitbox = hitboxesFolder:FindFirstChild(plr.Name)
+    if hitbox then
+        hitbox:Destroy()
+    end
+end)
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local player = Players.LocalPlayer
+
+local selectedPlayerName = nil
+local dropdown = nil
+
+
+local function getPlayerList()
+    local names = {}
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= player then
+            table.insert(names, p.Name)
+        end
+    end
+    return names
+end
+
+
+local function teleportToPlayer(name)
+    local target = Players:FindFirstChild(name)
+    if not target then
+        warn("ผู้เล่นออกจากเกมแล้ว:", name)
+        return
+    end
+
+    local char = target.Character or target.CharacterAdded:Wait()
+    local myChar = player.Character
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    local myHrp = myChar and myChar:FindFirstChild("HumanoidRootPart")
+
+    if hrp and myHrp then
+        myHrp.CFrame = hrp.CFrame + Vector3.new(0,3,0)
+        print("Teleported to:", name)
+    else
+        warn("ไม่พบ HumanoidRootPart ของผู้เล่นเป้าหมายหรือของคุณเอง")
+    end
+end
+
+
+dropdown = Tab:Dropdown({
+    Title = "Choose Player",
+    List = getPlayerList(),
+    Value = "",
+    Callback = function(choice)
+        selectedPlayerName = choice
+        print("เลือกผู้เล่น:", choice)
+    end
+})
+
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == Enum.KeyCode.Return then
+        if selectedPlayerName then
+            teleportToPlayer(selectedPlayerName)
+        else
+            warn("ยังไม่ได้เลือกผู้เล่น")
+        end
+    end
+end)
+
+
+    task.delay(5, function()
+    end)
+end
+
+Window:Line()
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local Extra = Window:Tab({Title = "Tp", Icon = ""}) do
+    Extra:Section({Title = "Tp"})
+
+    Extra:Button({
+        Title = "Random Teleport",
+        Desc = "Teleport to a random player",
+        Callback = function()
+
+            local allPlayers = Players:GetPlayers()
+            local others = {}
+
+            
+            for _, plr in ipairs(allPlayers) do
+                if plr ~= player then
+                    table.insert(others, plr)
+                end
+            end
+
+            
+            if #others == 0 then
+                Window:Notify({
+                    Title = "Error",
+                    Desc = "No other players to teleport to!",
+                    Time = 3
+                })
+                return
+            end
+
+            
+            local rnd = others[math.random(1, #others)]
+
+           
+            if rnd.Character and rnd.Character:FindFirstChild("HumanoidRootPart")
+            and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                
+                
+                player.Character.HumanoidRootPart.CFrame =
+                    rnd.Character.HumanoidRootPart.CFrame + Vector3.new(0, 3, 0)
+
+                -- แจ้งเตือน
+                Window:Notify({
+                    Title = "Teleported!",
+                    Desc = "You teleported to: " .. rnd.Name,
+                    Time = 3
+                })
+            else
+                Window:Notify({
+                    Title = "Error",
+                    Desc = "Failed to teleport to this player.",
+                    Time = 3
+                })
+            end
+        end
+    })
+end
+
+
+
+Window:Notify({
+    Title = "PlusPro Hub",
+    Desc = "",
+    Time = 5
+})
